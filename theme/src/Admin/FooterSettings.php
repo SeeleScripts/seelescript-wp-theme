@@ -14,26 +14,6 @@ namespace SeeleScript\Admin;
  */
 class FooterSettings {
 
-	/**
-	 * Render the full Footer Settings admin page.
-	 */
-	public static function render_page(): void {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to access this page.', 'seelescript' ) );
-		}
-		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Footer Settings', 'seelescript' ); ?></h1>
-			<form method="post" action="options.php">
-				<?php
-				settings_fields( ThemeSettings::GROUP_FOOTER );
-				do_settings_sections( ThemeSettings::SLUG_FOOTER );
-				submit_button( __( 'Save Footer Settings', 'seelescript' ) );
-				?>
-			</form>
-		</div>
-		<?php
-	}
 
 	/**
 	 * Render the Footer Logo image-upload field.

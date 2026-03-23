@@ -47,14 +47,9 @@ class ThemeSettings {
 	const GROUP_FOOTER = 'seelescript_footer_settings';
 
 	/**
-	 * Admin page slug for the header settings submenu.
+	 * Admin page slug for the theme settings page.
 	 */
-	const SLUG_HEADER = 'seelescript-header-settings';
-
-	/**
-	 * Admin page slug for the footer settings submenu.
-	 */
-	const SLUG_FOOTER = 'seelescript-footer-settings';
+	const SLUG_SETTINGS = 'seelescript-theme-settings';
 
 	/**
 	 * Wire up all WordPress hooks.
@@ -72,39 +67,60 @@ class ThemeSettings {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Register the top-level menu and submenus.
+	 * Register the top-level menu.
 	 */
 	public static function register_menus(): void {
-		// Top-level menu page (points to header settings by default).
+		// Top-level menu page.
 		add_menu_page(
 			__( 'Theme Settings', 'seelescript' ),
 			__( 'Theme Settings', 'seelescript' ),
 			'manage_options',
-			self::SLUG_HEADER,
-			array( HeaderSettings::class, 'render_page' ),
+			self::SLUG_SETTINGS,
+			array( static::class, 'render_page' ),
 			'dashicons-admin-appearance',
 			60
 		);
+	}
 
-		// Header Settings submenu (same slug → replaces the auto-created duplicate).
-		add_submenu_page(
-			self::SLUG_HEADER,
-			__( 'Header Settings', 'seelescript' ),
-			__( 'Header Settings', 'seelescript' ),
-			'manage_options',
-			self::SLUG_HEADER,
-			array( HeaderSettings::class, 'render_page' )
-		);
+	/**
+	 * Render the tabbed Theme Settings page.
+	 */
+	public static function render_page(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'seelescript' ) );
+		}
 
-		// Footer Settings submenu.
-		add_submenu_page(
-			self::SLUG_HEADER,
-			__( 'Footer Settings', 'seelescript' ),
-			__( 'Footer Settings', 'seelescript' ),
-			'manage_options',
-			self::SLUG_FOOTER,
-			array( FooterSettings::class, 'render_page' )
-		);
+		$active_tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : 'header';
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'Theme Settings', 'seelescript' ); ?></h1>
+			<?php settings_errors(); ?>
+
+			<h2 class="nav-tab-wrapper">
+				<a href="?page=<?php echo esc_attr( self::SLUG_SETTINGS ); ?>&tab=header" class="nav-tab <?php echo $active_tab === 'header' ? 'nav-tab-active' : ''; ?>">
+					<?php esc_html_e( 'Header Settings', 'seelescript' ); ?>
+				</a>
+				<a href="?page=<?php echo esc_attr( self::SLUG_SETTINGS ); ?>&tab=footer" class="nav-tab <?php echo $active_tab === 'footer' ? 'nav-tab-active' : ''; ?>">
+					<?php esc_html_e( 'Footer Settings', 'seelescript' ); ?>
+				</a>
+			</h2>
+
+			<div class="postbox" style="margin-top: 20px; padding: 20px;">
+				<form method="post" action="options.php">
+					<?php
+					if ( $active_tab === 'header' ) {
+						settings_fields( self::GROUP_HEADER );
+						do_settings_sections( self::SLUG_SETTINGS . '_header' );
+					} else {
+						settings_fields( self::GROUP_FOOTER );
+						do_settings_sections( self::SLUG_SETTINGS . '_footer' );
+					}
+					submit_button();
+					?>
+				</form>
+			</div>
+		</div>
+		<?php
 	}
 
 	// -------------------------------------------------------------------------
@@ -129,14 +145,14 @@ class ThemeSettings {
 			'seelescript_header_main',
 			__( 'Header Options', 'seelescript' ),
 			'__return_false',
-			self::SLUG_HEADER
+			self::SLUG_SETTINGS . '_header'
 		);
 
 		add_settings_field(
 			self::OPTION_HEADER_LOGO,
 			__( 'Site Logo', 'seelescript' ),
 			array( HeaderSettings::class, 'render_logo_field' ),
-			self::SLUG_HEADER,
+			self::SLUG_SETTINGS . '_header',
 			'seelescript_header_main'
 		);
 
@@ -172,14 +188,14 @@ class ThemeSettings {
 			'seelescript_footer_main',
 			__( 'Footer Options', 'seelescript' ),
 			'__return_false',
-			self::SLUG_FOOTER
+			self::SLUG_SETTINGS . '_footer'
 		);
 
 		add_settings_field(
 			self::OPTION_FOOTER_LOGO,
 			__( 'Footer Logo', 'seelescript' ),
 			array( FooterSettings::class, 'render_logo_field' ),
-			self::SLUG_FOOTER,
+			self::SLUG_SETTINGS . '_footer',
 			'seelescript_footer_main'
 		);
 
@@ -187,7 +203,7 @@ class ThemeSettings {
 			self::OPTION_FOOTER_COPYRIGHT,
 			__( 'Copyright Text', 'seelescript' ),
 			array( FooterSettings::class, 'render_copyright_field' ),
-			self::SLUG_FOOTER,
+			self::SLUG_SETTINGS . '_footer',
 			'seelescript_footer_main'
 		);
 
@@ -195,7 +211,7 @@ class ThemeSettings {
 			self::OPTION_FOOTER_SOCIAL,
 			__( 'Social Icons', 'seelescript' ),
 			array( FooterSettings::class, 'render_social_field' ),
-			self::SLUG_FOOTER,
+			self::SLUG_SETTINGS . '_footer',
 			'seelescript_footer_main'
 		);
 	}
@@ -211,8 +227,7 @@ class ThemeSettings {
 	 */
 	public static function enqueue_admin_assets( string $hook ): void {
 		$our_pages = array(
-			'toplevel_page_' . self::SLUG_HEADER,
-			'theme-settings_page_' . self::SLUG_FOOTER,
+			'toplevel_page_' . self::SLUG_SETTINGS,
 		);
 
 		if ( ! in_array( $hook, $our_pages, true ) ) {

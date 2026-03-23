@@ -14,26 +14,6 @@ namespace SeeleScript\Admin;
  */
 class HeaderSettings {
 
-	/**
-	 * Render the full Header Settings admin page.
-	 */
-	public static function render_page(): void {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to access this page.', 'seelescript' ) );
-		}
-		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Header Settings', 'seelescript' ); ?></h1>
-			<form method="post" action="options.php">
-				<?php
-				settings_fields( ThemeSettings::GROUP_HEADER );
-				do_settings_sections( ThemeSettings::SLUG_HEADER );
-				submit_button( __( 'Save Header Settings', 'seelescript' ) );
-				?>
-			</form>
-		</div>
-		<?php
-	}
 
 	/**
 	 * Render the Site Logo image-upload field.
