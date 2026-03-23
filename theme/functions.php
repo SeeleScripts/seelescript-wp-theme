@@ -48,9 +48,13 @@ if ( ! defined( 'SEELESCRIPT_TYPOGRAPHY_CLASSES' ) ) {
 require get_template_directory() . '/src/Setup.php';
 require get_template_directory() . '/src/TemplateTags.php';
 require get_template_directory() . '/src/TemplateFunctions.php';
+require get_template_directory() . '/src/Admin/ThemeSettings.php';
+require get_template_directory() . '/src/Admin/HeaderSettings.php';
+require get_template_directory() . '/src/Admin/FooterSettings.php';
 
 /**
  * Bootstrap theme setup and WordPress hooks.
  */
 SeeleScript\Setup::init();
 SeeleScript\TemplateFunctions::init();
+SeeleScript\Admin\ThemeSettings::init();

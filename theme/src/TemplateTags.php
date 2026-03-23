@@ -287,4 +287,52 @@ class TemplateTags {
 		// Separates class names with a single space, preparing them for the content wrapper.
 		echo 'class="' . esc_attr( implode( ' ', $combined_classes ) ) . '"';
 	}
+
+	// =========================================================================
+	// Theme Settings getters
+	// =========================================================================
+
+	/**
+	 * Returns the header logo URL saved in Theme Settings.
+	 *
+	 * @return string URL string, or empty string if not set.
+	 */
+	public static function header_logo_url(): string {
+		$val = get_option( 'seelescript_header_logo', '' );
+		return is_string( $val ) ? $val : '';
+	}
+
+	/**
+	 * Returns the footer logo URL saved in Theme Settings.
+	 *
+	 * @return string URL string, or empty string if not set.
+	 */
+	public static function footer_logo_url(): string {
+		$val = get_option( 'seelescript_footer_logo', '' );
+		return is_string( $val ) ? $val : '';
+	}
+
+	/**
+	 * Returns the footer copyright text saved in Theme Settings.
+	 *
+	 * @return string Plain text, or empty string if not set.
+	 */
+	public static function footer_copyright(): string {
+		$val = get_option( 'seelescript_footer_copyright', '' );
+		return is_string( $val ) ? $val : '';
+	}
+
+	/**
+	 * Returns the footer social icons as an indexed array.
+	 *
+	 * Each entry is an associative array with keys 'icon' and 'url'.
+	 *
+	 * @return array<int, array{icon: string, url: string}>
+	 */
+	public static function footer_social_icons(): array {
+		$raw     = get_option( 'seelescript_footer_social_icons', '[]' );
+		$raw     = is_string( $raw ) ? $raw : '[]';
+		$decoded = json_decode( $raw, true );
+		return is_array( $decoded ) ? $decoded : array();
+	}
 }
